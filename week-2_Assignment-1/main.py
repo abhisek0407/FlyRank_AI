@@ -1,11 +1,15 @@
 from fastapi import FastAPI,HTTPException,Request
 from pydantic import BaseModel,Field
+from typing import Optional
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 app=FastAPI()
 class taskFormat(BaseModel):
     title:str=Field(...,description="Name of the task",min_length=1)
 
+class taskUpdate(BaseModel):
+    title:Optional[str]=Field(default=None,description="Name of the task",min_length=1)
+    done:Optional[bool]=Field(default=None,description="Status of the task")
 
 tasks=[
     {
@@ -90,5 +94,33 @@ def add_task(taskInput:taskFormat):
     tasks.append(new_task)
     return new_task
 
-        
-
+@app.put("/tasks/{id}")
+def update_task(id:int, taskInput:taskUpdate):
+    for task in tasks:
+        if task["id"]==id:
+            if taskInput.title is not None:
+                if taskInput.title.strip()=="":
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Title cannot be empty"
+                    )
+                task["title"]=taskInput.title
+            if taskInput.done is not None:
+                task["done"]=taskInput.done
+            return task
+    raise HTTPException(
+        status_code=404,
+        detail=f"Task {id} not found"
+    )
+    
+@app.delete("/tasks/{id}",status_code=204)
+def remove_task(id:int):
+    for task in tasks:
+        if task["id"]==id:
+            tasks.remove(task)
+            return
+    raise HTTPException(
+        status_code=404,
+        detail=f"task {id} not found"
+    )
+    
