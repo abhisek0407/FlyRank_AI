@@ -1,0 +1,17 @@
+# Week-2 Assignment
+week-2_Assignment-1/myenv/
+week-2_Assignment-1/__pycache__/
+
+# Python cache everywhere
+**/__pycache__/
+*.py[cod]
+
+# Environment files
+.env
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

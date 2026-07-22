@@ -3,7 +3,11 @@ from pydantic import BaseModel,Field
 from typing import Optional
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-app=FastAPI()
+app = FastAPI(
+    title="Task Management API",
+    description="A simple CRUD API built using FastAPI for FlyRank AI Backend Assignment Week-2.",
+    version="1.0.0"
+)
 class taskFormat(BaseModel):
     title:str=Field(...,description="Name of the task",min_length=1)
 
@@ -28,20 +32,36 @@ tasks=[
         "done":False
     }
 ]
-@app.get("/")
+@app.get(
+    "/",
+    summary="Root endpoint",
+    description="Returns basic information about the Task API."
+)
 def root():
     return {'name':'Task API','Version':'1.0','endpoints':["/tasks"]}
-@app.get("/health")
+@app.get(
+    "/health",
+    summary="Health check",
+    description="Checks whether the API server is running."
+)
 def health():
     return {
         "status":"OK"
     }
 
-@app.get("/tasks")
+@app.get(
+    "/tasks",
+    summary="Get all tasks",
+    description="Returns a list of all available tasks."
+)
 def view():
     return tasks
 
-@app.get("/tasks/{id}")
+@app.get(
+    "/tasks/{id}",
+    summary="Get task by ID",
+    description="Returns a single task using its ID."
+)
 def get_task(id:int):
     for task in tasks:
         if task["id"]==id:
@@ -70,7 +90,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         }
     )
 
-@app.post("/tasks",status_code=201)
+@app.post(
+    "/tasks",
+    status_code=201,
+    summary="Create a new task",
+    description="Creates a new task with a unique ID."
+)
 def add_task(taskInput:taskFormat):
     if taskInput.title.strip() == "":
      raise HTTPException(
@@ -94,7 +119,11 @@ def add_task(taskInput:taskFormat):
     tasks.append(new_task)
     return new_task
 
-@app.put("/tasks/{id}")
+@app.put(
+    "/tasks/{id}",
+    summary="Update a task",
+    description="Updates the title and/or completion status of a task."
+)
 def update_task(id:int, taskInput:taskUpdate):
     for task in tasks:
         if task["id"]==id:
@@ -113,7 +142,12 @@ def update_task(id:int, taskInput:taskUpdate):
         detail=f"Task {id} not found"
     )
     
-@app.delete("/tasks/{id}",status_code=204)
+@app.delete(
+    "/tasks/{id}",
+    status_code=204,
+    summary="Delete a task",
+    description="Deletes a task using its ID."
+)
 def remove_task(id:int):
     for task in tasks:
         if task["id"]==id:
