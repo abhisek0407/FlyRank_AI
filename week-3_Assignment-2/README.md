@@ -155,7 +155,7 @@ Returns all the task records currently stored in the SQLite database.
 
 ## SQLite Database (DB Browser)
 
-![SQLite Database](./images/Screenshot 2026-07-27 222704.png)
+![SQLite Database](./images/Screenshot%202026-07-27%20222704.png)
 
 ---
 
