@@ -36,23 +36,6 @@ class taskUpdate(BaseModel):
     title:Optional[str]=Field(default=None,description="Name of the task",min_length=1)
     done:Optional[bool]=Field(default=None,description="Status of the task")
 
-# tasks=[
-#     {
-#         "id":1,
-#         "title":"Office work",
-#         "done":True
-#     },
-#     {
-#         "id":2,
-#         "title":"Mumbai tour",
-#         "done":True
-#     },
-#     {
-#         "id":3,
-#         "title":"Marketing",
-#         "done":False
-#     }
-# ]
 @app.get(
     "/",
     summary="Root endpoint",
@@ -149,22 +132,34 @@ def add_task(taskInput:taskFormat):
     description="Updates the title and/or completion status of a task."
 )
 def update_task(id:int, taskInput:taskUpdate):
-    for task in tasks:
-        if task["id"]==id:
-            if taskInput.title is not None:
-                if taskInput.title.strip()=="":
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Title cannot be empty"
-                    )
-                task["title"]=taskInput.title
-            if taskInput.done is not None:
-                task["done"]=taskInput.done
-            return task
-    raise HTTPException(
-        status_code=404,
-        detail=f"Task {id} not found"
-    )
+    cursor.execute("SELECT * FROM tasks WHERE id=?",(id,))
+    result=cursor.fetchone()
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Task {id} not found"
+        )
+    
+    if taskInput.title is not None:
+        if taskInput.title.strip()=="":
+            raise HTTPException(
+                status_code=400,
+                detail="Title cannot be empty"
+            )
+        cursor.execute("UPDATE tasks SET title=? WHERE id=?",(taskInput.title,id))
+    if taskInput.done is not None:
+        cursor.execute("UPDATE tasks SET done=? WHERE id=?",(taskInput.done,id))
+    conn.commit()
+
+    cursor.execute("SELECT * FROM tasks WHERE id=?", (id,))
+    updated_task = cursor.fetchone()
+
+    return {
+        "id": updated_task[0],
+        "title": updated_task[1],
+        "done": bool(updated_task[2])
+    }
+   
     
 @app.delete(
     "/tasks/{id}",
@@ -173,12 +168,13 @@ def update_task(id:int, taskInput:taskUpdate):
     description="Deletes a task using its ID."
 )
 def remove_task(id:int):
-    for task in tasks:
-        if task["id"]==id:
-            tasks.remove(task)
-            return
-    raise HTTPException(
-        status_code=404,
-        detail=f"task {id} not found"
-    )
+    cursor.execute("DELETE FROM tasks WHERE id=?",(id,))
+    if cursor.rowcount==0:
+     raise HTTPException(
+            status_code=404,
+            detail=f"task {id} not found"
+        )
+    conn.commit()
+    return
+    
     
