@@ -36,23 +36,23 @@ class taskUpdate(BaseModel):
     title:Optional[str]=Field(default=None,description="Name of the task",min_length=1)
     done:Optional[bool]=Field(default=None,description="Status of the task")
 
-tasks=[
-    {
-        "id":1,
-        "title":"Office work",
-        "done":True
-    },
-    {
-        "id":2,
-        "title":"Mumbai tour",
-        "done":True
-    },
-    {
-        "id":3,
-        "title":"Marketing",
-        "done":False
-    }
-]
+# tasks=[
+#     {
+#         "id":1,
+#         "title":"Office work",
+#         "done":True
+#     },
+#     {
+#         "id":2,
+#         "title":"Mumbai tour",
+#         "done":True
+#     },
+#     {
+#         "id":3,
+#         "title":"Marketing",
+#         "done":False
+#     }
+# ]
 @app.get(
     "/",
     summary="Root endpoint",
@@ -126,22 +126,22 @@ def add_task(taskInput:taskFormat):
         status_code=400,
         detail="Title cannot be empty."
      )
-    for task in tasks:
-        if task["title"].lower()==taskInput.title.lower():
-            raise HTTPException(
-                status_code=400,
-                detail="Title already exists"
-            )
+    cursor.execute("SELECT * FROM tasks where title=?",(taskInput.title,))
+    result=cursor.fetchone()
+    if result:
+        raise HTTPException(
+            status_code=400,
+            detail="Title already exists"
+        )
         
-    max_id=tasks[-1]["id"]
-    new_id=max_id+1
-    new_task={
-        "id":new_id,
-        "title":taskInput.title,
-        "done":False
-    }
-    tasks.append(new_task)
-    return new_task
+    
+    cursor.execute("INSERT INTO tasks(title,done) VALUES (?,?)",(taskInput.title,0))
+    conn.commit()
+    return {
+    "id": cursor.lastrowid,
+    "title": taskInput.title,
+    "done": False
+}
 
 @app.put(
     "/tasks/{id}",
