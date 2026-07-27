@@ -76,7 +76,9 @@ def health():
     description="Returns a list of all available tasks."
 )
 def view():
-    return tasks
+    cursor.execute("SELECT * FROM tasks")
+    data=cursor.fetchall()
+    return data
 
 @app.get(
     "/tasks/{id}",
@@ -84,9 +86,10 @@ def view():
     description="Returns a single task using its ID."
 )
 def get_task(id:int):
-    for task in tasks:
-        if task["id"]==id:
-            return task
+    cursor.execute("SELECT * FROM tasks WHERE id=?",(id,))
+    task = cursor.fetchone()
+    if task:
+        return task
     raise HTTPException(
         status_code=404,
         detail=f"Task {id} not found"
