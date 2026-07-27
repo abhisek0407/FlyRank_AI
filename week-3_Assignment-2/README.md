@@ -1,62 +1,79 @@
-# Task Management API
+# 📋 Task Management API with SQLite
 
-A simple RESTful Task Management API built using **FastAPI** as part of the **FlyRank AI Backend Engineering Internship – Week 2 Assignment 1**.
+A simple CRUD (Create, Read, Update, Delete) REST API built using **FastAPI** and **SQLite** as part of the **FlyRank AI Backend Internship – Week 3 Assignment**.
 
-The project demonstrates a complete CRUD API using in-memory storage and automatic API documentation with Swagger UI.
-
----
-
-## Features
-
-- Create a task
-- View all tasks
-- View a task by ID
-- Update a task
-- Delete a task
-- Request validation
-- Custom error handling
-- Swagger UI documentation
+The project demonstrates how to migrate an in-memory task management API to a persistent SQLite database while maintaining complete CRUD functionality.
 
 ---
 
-## Tech Stack
+## 🚀 Features
+
+- ✅ FastAPI REST API
+- ✅ SQLite database integration
+- ✅ Create, Read, Update & Delete tasks
+- ✅ Automatic database creation
+- ✅ Automatic sample data seeding
+- ✅ Interactive Swagger UI documentation
+- ✅ Parameterized SQL queries for safety
+
+---
+
+## 🛠️ Tech Stack
 
 - Python 3.x
 - FastAPI
 - Uvicorn
-- Pydantic
+- SQLite3
 
 ---
 
-## Installation
+## 📁 Project Structure
 
-Clone the repository.
-
-```bash
-git clone https://github.com/<your-username>/FlyRank_AI.git
+```text
+week-3_Assignment-2/
+│── main.py
+│── tasks.db (Generated automatically)
+│── requirements.txt
+│── README.md
 ```
 
-Move to the assignment folder.
+---
+
+## ▶️ Installation
+
+### 1. Clone the repository
 
 ```bash
-cd FlyRank_AI/week-2_Assignment-1
+git clone <YOUR_GITHUB_REPOSITORY_URL>
 ```
 
-Create a virtual environment.
+### 2. Navigate to the project folder
 
 ```bash
-python -m venv myenv
+cd FlyRank_AI/week-3_Assignment-2
 ```
 
-Activate it.
-
-Windows
+### 3. Create a virtual environment
 
 ```bash
-myenv\Scripts\activate
+python -m venv venv
 ```
 
-Install dependencies.
+### 4. Activate the virtual environment
+
+**Windows**
+
+```bash
+venv\Scripts\activate
+```
+
+**Linux / macOS**
+
+```bash
+source venv/bin/activate
+```
+
+### 5. Install dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -64,19 +81,13 @@ pip install -r requirements.txt
 
 ---
 
-## Run the API
+## ▶️ Run the Project
 
 ```bash
 uvicorn main:app --reload
 ```
 
-The API will start at
-
-```
-http://127.0.0.1:8000
-```
-
-Swagger UI
+Open your browser:
 
 ```
 http://127.0.0.1:8000/docs
@@ -84,81 +95,89 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## API Endpoints
+# 🗄️ Why SQLite?
+
+SQLite is a lightweight, serverless relational database that stores all data inside a single local database file (`tasks.db`). It requires no separate database server, making it an excellent choice for learning database-backed APIs and building small to medium-sized applications.
+
+Advantages:
+
+- Lightweight
+- Easy to configure
+- No installation required
+- Persistent storage
+- Fast and reliable
+
+---
+
+# ⚙️ Automatic Database Creation
+
+The application automatically creates **tasks.db** when it is run for the first time.
+
+If the database is empty, three sample tasks are automatically inserted into the database.
+
+Therefore, users only need to run the application—no manual database setup is required.
+
+---
+
+# 📌 API Endpoints
 
 | Method | Endpoint | Description |
 |---------|----------|-------------|
-| GET | / | Root endpoint |
-| GET | /health | Health check |
-| GET | /tasks | Get all tasks |
-| GET | /tasks/{id} | Get task by ID |
-| POST | /tasks | Create task |
-| PUT | /tasks/{id} | Update task |
-| DELETE | /tasks/{id} | Delete task |
+| GET | `/` | Root endpoint |
+| GET | `/health` | Health check |
+| GET | `/tasks` | Get all tasks |
+| GET | `/tasks/{id}` | Get task by ID |
+| POST | `/tasks` | Create a task |
+| PUT | `/tasks/{id}` | Update a task |
+| DELETE | `/tasks/{id}` | Delete a task |
 
 ---
 
-## Sample curl Output
+# 🧾 Sample SQL Query
 
-### Create a Task
-
-```bash
-curl -i -X POST http://127.0.0.1:8000/tasks ^
--H "Content-Type: application/json" ^
--d "{\"title\":\"Buy Milk\"}"
+```sql
+SELECT * FROM tasks;
 ```
 
-Example response
+### Output
 
-```http
-HTTP/1.1 201 Created
-
-{
-    "id":4,
-    "title":"Buy Milk",
-    "done":false
-}
-```
+Returns all the task records currently stored in the SQLite database.
 
 ---
+
+# 📷 Project Screenshots
 
 ## Swagger UI
 
-Open
-
-```
-http://127.0.0.1:8000/docs
-```
-
-Insert your Swagger UI screenshot here.
-
-Example:
-
-```
-![Swagger UI](images/swagger-ui.png)
-```
-
-(or simply paste the image directly into GitHub while editing README.)
+![Swagger UI](./images/Screenshot%202026-07-27%20232610.png)
 
 ---
 
-## Project Structure
+## SQLite Database (DB Browser)
 
-```
-week-2_Assignment-1/
-│
-├── main.py
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
+![SQLite Database](./images/Screenshot 2026-07-27 222704.png)
 
 ---
 
-## Author
+# 📚 Learning Outcome
+
+Through this assignment, I learned:
+
+- FastAPI CRUD development
+- SQLite database integration
+- SQL queries using Python
+- Database persistence
+- Parameterized SQL statements
+- API testing using Swagger UI
+
+---
+
+# 👨‍💻 Author
 
 **Abhisek Panda**
 
-Backend AI Engineering Intern
+B.Tech – CSE (AI & ML)
 
-FlyRank AI
+Odisha University of Technology and Research (OUTR), Bhubaneswar
+
+Backend AI Engineering Intern – FlyRank AI

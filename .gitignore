@@ -1,17 +1,34 @@
-# Week-2 Assignment
-week-2_Assignment-1/myenv/
-week-2_Assignment-1/__pycache__/
 
-# Python cache everywhere
+week-3_Assignment-2/tasks.db
+week-3_Assignment-2/*.db-journal
+week-3_Assignment-2/*.db-wal
+week-3_Assignment-2/*.db-shm
+
+# ==========================
+# Python cache (all projects)
+# ==========================
 **/__pycache__/
 *.py[cod]
 
+# ==========================
+# Virtual Environments (all projects)
+# ==========================
+**/myenv/
+**/venv/
+**/.venv/
+
+# ==========================
 # Environment files
+# ==========================
 .env
 
+# ==========================
 # VS Code
+# ==========================
 .vscode/
 
+# ==========================
 # OS files
+# ==========================
 .DS_Store
 Thumbs.db
