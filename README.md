@@ -23,8 +23,8 @@ This repository contains all the assignments, hands-on exercises, and backend de
 ```
 FlyRank_AI/
 │
-├── Assignment-1/
-├── Assignment-2/
+├── Week-2 Assignment-1/
+├── Week-3 Assignment-2/
 ├── Assignment-3/
 ├── Assignment-4/
 ├── ...
@@ -40,7 +40,7 @@ Each assignment is organized in its own folder with the corresponding source cod
 | Assignment | Description | Status |
 |------------|-------------|--------|
 |Week-2 Assignment-1 | Basic CRUD API for TodoList | ✅ Completed |
-| Assignment-2 | Coming Soon | ⏳ |
+|Week-3 Assignment-2 | Connecting CRUD to the database | ✅ Completed |
 | Assignment-3 | Coming Soon | ⏳ |
 
 ---
