@@ -32,3 +32,12 @@ week-3_Assignment-2/*.db-shm
 # ==========================
 .DS_Store
 Thumbs.db
+
+# Python virtual environment
+week-3_Assignment-3/myenv/
+
+# Environment variables
+.env
+
+
+
