@@ -64,8 +64,15 @@ def health():
 )
 def view():
     cursor.execute("SELECT * FROM tasks")
-    data=cursor.fetchall()
-    return data
+    rows=cursor.fetchall()
+    return [
+        {
+            "id": row[0],
+            "title": row[1],
+            "done": row[2]
+        }
+        for row in rows
+    ]
 
 @app.get(
     "/tasks/{id}",
@@ -77,10 +84,12 @@ def get_task(id:int):
     task = cursor.fetchone()
     if task:
         return task
-    raise HTTPException(
-        status_code=404,
-        detail=f"Task {id} not found"
-    )
+    return JSONResponse(
+     status_code=404,
+     content={
+        "error":"Task not found"
+     }
+)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
