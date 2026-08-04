@@ -56,7 +56,7 @@ def health():
     return {
         "status":"OK"
     }
-
+#Data retrieval
 @app.get(
     "/tasks",
     summary="Get all tasks",
@@ -110,6 +110,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         }
     )
 
+#Data insertion
 @app.post(
     "/tasks",
     status_code=201,
@@ -140,6 +141,7 @@ def add_task(taskInput:taskFormat):
     "done": False
 }
 
+#Data updation
 @app.put(
     "/tasks/{id}",
     summary="Update a task",
@@ -174,7 +176,7 @@ def update_task(id:int, taskInput:taskUpdate):
         "done": bool(updated_task[2])
     }
    
-    
+#Data deletion   
 @app.delete(
     "/tasks/{id}",
     status_code=204,
