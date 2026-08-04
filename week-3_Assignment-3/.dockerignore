@@ -1,0 +1,33 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+myenv/
+venv/
+.venv/
+
+# Environment files
+.env
+
+# Git
+.git
+.gitignore
+
+# VS Code
+.vscode/
+
+# Docker
+Dockerfile
+compose.yaml
+
+# Database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# OS files
+.DS_Store
+Thumbs.db
