@@ -4,16 +4,11 @@ from typing import Optional
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 import psycopg
-from supabase import create_client
 from dotenv import load_dotenv
 load_dotenv()
 import os
 from auth import router as auth_router
 DATABASE_URL=os.getenv("DATABASE_URL")
-SUPABASE_URL=os.getenv("SUPABASE_URL")
-SUPABASE_KEY=os.getenv("SUPABASE_KEY")
-
-supabase=create_client(SUPABASE_URL,SUPABASE_KEY)
 conn=psycopg.connect(DATABASE_URL)
 cursor=conn.cursor()
 cursor.execute("""
