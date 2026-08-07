@@ -1,228 +1,242 @@
-# 🚀 FlyRank AI – Week 3 Assignment 3
+# 🔐 Authentication API using FastAPI, PostgreSQL & Supabase
 
-A Task Management REST API built using **FastAPI** and **PostgreSQL**, containerized with **Docker** and orchestrated using **Docker Compose**.
-
-This project demonstrates a complete CRUD API with PostgreSQL as the database backend and Docker Compose to start both the API and database using a single command.
+A secure REST API built with **FastAPI**, **PostgreSQL**, and **Supabase Authentication**. This project demonstrates user authentication using JWT tokens, protected routes, reusable authentication middleware (dependency), PostgreSQL integration, and interactive API documentation with Swagger UI.
 
 ---
 
-## 👨‍💻 Author
+## 🚀 Features
 
-**Name:** Abhisek Panda
-
-**Track:** Backend AI Engineering Internship
-
-**Framework:** FastAPI
-
-**Database:** PostgreSQL
+- User Signup with Supabase Authentication
+- User Login with JWT Access & Refresh Tokens
+- Public Route (No Authentication Required)
+- Protected Routes using JWT Authentication
+- Reusable Authentication Dependency
+- User Logout
+- PostgreSQL Database Integration
+- Swagger UI with Bearer Token Authentication
+- Docker Support
+- Environment Variable Configuration
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Python
+- Python 3.13
 - FastAPI
 - PostgreSQL
+- Supabase Authentication
 - Psycopg
-- Docker
-- Docker Compose
-- Pydantic
-- Uvicorn
+- Docker & Docker Compose
+- Swagger UI (OpenAPI)
 
 ---
 
-# 📁 Project Structure
+## 📁 Project Structure
 
 ```
-week-3_Assignment-3/
+week-4_Assignment-4/
 │
 ├── main.py
+├── auth.py
 ├── requirements.txt
 ├── Dockerfile
 ├── compose.yaml
-├── .dockerignore
 ├── .env.example
-├── README.md
-└── images/
-    ├── swagger.png
-    └── postgres.png
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-# ⚙️ Environment Variables
+## ⚙️ Environment Variables
 
-Create a `.env` file using `.env.example`.
-
-Example:
+Create a `.env` file in the project root using the following format:
 
 ```env
 DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_KEY=your_supabase_anon_key
 ```
 
-When running with **Docker Compose**, the API automatically uses:
-
-```text
-postgres://postgres:dev@db:5432/tasks
-```
-
-configured in `compose.yaml`.
+> **Important:** Never commit your `.env` file to GitHub.
 
 ---
 
-# ▶️ Run the Project
+## 📦 Installation
 
-## Build and start the complete stack
+### 1. Clone the repository
 
 ```bash
-docker compose up --build
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd week-4_Assignment-4
 ```
 
-This command automatically:
-
-- Starts PostgreSQL
-- Builds the FastAPI image
-- Starts the API server
-- Connects the API to PostgreSQL
-
----
-
-## Stop the application
+### 2. Create a Virtual Environment
 
 ```bash
-docker compose down
+python -m venv myenv
 ```
 
----
+### 3. Activate the Virtual Environment
 
-## API URLs
-
-Root
-
-```
-http://localhost:8000
-```
-
-Swagger UI
-
-```
-http://localhost:8000/docs
-```
-
-ReDoc
-
-```
-http://localhost:8000/redoc
-```
-
----
-
-# 📌 API Endpoints
-
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/` | Root endpoint |
-| GET | `/health` | Health check |
-| GET | `/tasks` | Get all tasks |
-| GET | `/tasks/{id}` | Get task by ID |
-| POST | `/tasks` | Create task |
-| PUT | `/tasks/{id}` | Update task |
-| DELETE | `/tasks/{id}` | Delete task |
-
----
-
-# Example cURL
+#### Windows
 
 ```bash
-curl -i -X GET http://localhost:8000/tasks
+myenv\Scripts\activate
 ```
 
-Example Response
+#### Linux / macOS
+
+```bash
+source myenv/bin/activate
+```
+
+### 4. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🐳 Start PostgreSQL using Docker
+
+```bash
+docker compose up -d
+```
+
+Verify the container is running:
+
+```bash
+docker compose ps
+```
+
+---
+
+## ▶️ Run the Application
+
+```bash
+uvicorn main:app --reload
+```
+
+The API will be available at:
+
+```
+http://127.0.0.1:8000
+```
+
+Swagger UI:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# 📚 API Reference
+
+| Method | Endpoint | Authentication | Description |
+|--------|----------|----------------|-------------|
+| POST | `/auth/signup` | ❌ No | Register a new user |
+| POST | `/auth/login` | ❌ No | Login and receive JWT tokens |
+| POST | `/auth/logout` | ✅ Yes | Logout current user |
+| GET | `/public/info` | ❌ No | Public endpoint |
+| GET | `/protected/profile` | ✅ Yes | Returns authenticated user's profile |
+| GET | `/protected/dashboard` | ✅ Yes | Protected dashboard endpoint |
+| GET | `/tasks` | ❌ No | Retrieve all tasks |
+| GET | `/tasks/{id}` | ❌ No | Retrieve task by ID |
+| POST | `/tasks` | ❌ No | Create a new task |
+| PUT | `/tasks/{id}` | ❌ No | Update an existing task |
+| DELETE | `/tasks/{id}` | ❌ No | Delete a task |
+
+---
+
+# 🔑 Authentication
+
+Protected routes require a valid JWT Access Token.
+
+Example Authorization header:
 
 ```http
-HTTP/1.1 200 OK
-content-type: application/json
+Authorization: Bearer <your_access_token>
+```
 
-[
-  {
-    "id":1,
-    "title":"Office work",
-    "done":true
-  },
-  {
-    "id":2,
-    "title":"Mumbai tour",
-    "done":true
-  },
-  {
-    "id":3,
-    "title":"Marketing",
-    "done":false
-  }
-]
+You can obtain the Access Token by logging in through:
+
+```
+POST /auth/login
 ```
 
 ---
 
-# Screenshots
+# 📖 Swagger Documentation
 
-## Swagger UI
+FastAPI automatically generates interactive API documentation.
 
-![Swagger UI](images/swagger.png)
+Open:
 
----
+```
+http://127.0.0.1:8000/docs
+```
 
-## PostgreSQL Database
-
-![PostgreSQL](images/postgres.png)
-
----
-
-# Features
-
-- PostgreSQL database
-- Full CRUD operations
-- Input validation
-- Custom validation error handling
-- Dockerized FastAPI application
-- Docker Compose support
-- Persistent database using Docker Volumes
-- Environment variable configuration
+Click **Authorize**, paste your JWT Access Token, and test protected endpoints directly from the browser.
 
 ---
 
-# Docker Volume Persistence
+# 📸 Swagger UI Screenshot
 
-Data is stored inside the Docker volume.
+> Replace the image below with your own screenshot after completing the project.
 
-Stopping the containers using
+```text
+docs/swagger-ui.png
+```
+
+Example:
+
+```markdown
+![Swagger UI](images/Screenshot 2026-08-07 212816.png)
+```
+
+---
+
+# 🧪 Sample Workflow
+
+1. Register a new user using `/auth/signup`
+2. Login using `/auth/login`
+3. Copy the Access Token
+4. Click **Authorize** in Swagger UI
+5. Paste the Access Token
+6. Access protected endpoints
+7. Logout using `/auth/logout`
+
+---
+
+# 📋 Requirements
+
+```
+fastapi
+uvicorn
+psycopg[binary]
+python-dotenv
+supabase
+```
+
+Install all dependencies using:
 
 ```bash
-docker compose down
+pip install -r requirements.txt
 ```
-
-does **not** delete the stored tasks.
-
-Running
-
-```bash
-docker compose up
-```
-
-again restores all previously created tasks.
 
 ---
 
-# Assignment Stages Completed
+# 👨‍💻 Author
 
-- ✅ Stage 0 – PostgreSQL in Docker
-- ✅ Stage 1 – Connect via `.env`
-- ✅ Stage 2 – Read data from PostgreSQL
-- ✅ Stage 3 – Full CRUD on PostgreSQL
-- ✅ Stage 4 – Docker Compose for complete stack
+**Abhisek Panda**
+
+Backend Authentication API built as part of the **FlyRank AI Backend Engineering Internship – Week 4 Assignment**.
 
 ---
 
-# License
+# 📄 License
 
-This project was developed for the **FlyRank AI Backend AI Engineering Internship** as part of the Week 3 Assignment.
+This project is created for educational and internship assignment purposes.

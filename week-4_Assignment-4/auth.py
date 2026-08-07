@@ -1,8 +1,8 @@
-from fastapi import APIRouter,HTTPException,status,Header, Depends
+from fastapi import APIRouter,HTTPException,status, Depends
 from pydantic import BaseModel,EmailStr
 from fastapi.responses import JSONResponse
 from supabase import create_client
-from typing import Optional
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -10,6 +10,10 @@ SUPABASE_URL=os.getenv("SUPABASE_URL")
 SUPABASE_KEY=os.getenv("SUPABASE_KEY")
 
 supabase=create_client(SUPABASE_URL,SUPABASE_KEY)
+security = HTTPBearer(
+    scheme_name="BearerAuth",
+    bearerFormat="JWT"
+)
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
@@ -76,21 +80,16 @@ def login(user:User):
 
 
 
-def verify_user(Authorization: Optional[str] = Header(None)):
+def verify_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
-    if Authorization is None:
+    if credentials is None:
         raise HTTPException(
             status_code=401,
             detail="Access token required"
         )
 
-    if not Authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401,
-            detail="Access token required"
-        )
 
-    token = Authorization.split(" ", 1)[1].strip()
+    token = credentials.credentials
 
     if token == "":
         raise HTTPException(
