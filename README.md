@@ -25,8 +25,8 @@ FlyRank_AI/
 │
 ├── Week-2 Assignment-1/
 ├── Week-3 Assignment-2/
-├── Assignment-3/
-├── Assignment-4/
+├── Week-3 Assignment-3/
+├── Week-4 Assignment-4/
 ├── ...
 └── README.md
 ```
@@ -41,7 +41,8 @@ Each assignment is organized in its own folder with the corresponding source cod
 |------------|-------------|--------|
 |Week-2 Assignment-1 | Basic CRUD API for TodoList | ✅ Completed |
 |Week-3 Assignment-2 | Connecting CRUD to the database | ✅ Completed |
-| Assignment-3 | Coming Soon | ⏳ |
+| Week-3 Assignment-3 | Containerize your stack | ✅ Completed |
+| Week-4 Assignment-4 | Auth · Login & protect | ✅ Completed |
 
 ---
 
@@ -51,6 +52,9 @@ Each assignment is organized in its own folder with the corresponding source cod
 - FastAPI
 - Uvicorn
 - Pydantic
+- PostgreSQL
+- Supabase
+- Docker
 - Git
 - GitHub
 - VS Code
