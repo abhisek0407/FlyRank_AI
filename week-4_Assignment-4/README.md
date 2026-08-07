@@ -184,18 +184,8 @@ Click **Authorize**, paste your JWT Access Token, and test protected endpoints d
 ---
 
 # 📸 Swagger UI Screenshot
-
-> Replace the image below with your own screenshot after completing the project.
-
-```text
-docs/swagger-ui.png
-```
-
-Example:
-
-```markdown
 ![Swagger UI](images/Screenshot 2026-08-07 212816.png)
-```
+
 
 ---
 
