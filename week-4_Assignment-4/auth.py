@@ -85,32 +85,43 @@ def publicInfo():
      }
 @Profilerouter.get("/protected/profile",status_code=status.HTTP_200_OK)
 def protectedProfile( Authorization: Optional[str] = Header(None)):
-     print("Authorization =", Authorization)
-     if Authorization is None:
+     
+    if Authorization is None:
           return JSONResponse(
                status_code=401,
                content={"error":"Access token required"}
           )
-     if not Authorization.startswith("Bearer "):
+    if not Authorization.startswith("Bearer "):
           return JSONResponse(
                status_code=401,
                content={
                     "error":"Access token required"
                }
           )
-     token=Authorization.split(" ",1)[1].strip()
+    token=Authorization.split(" ",1)[1].strip()
 
-     if token=="":
+    if token=="":
           return JSONResponse(
                status_code=401,
                content={
                     "error":"Access token required"
                }
           )
-     return{
-          "message": "Protected route accessed successfully.",
-          "access_token": token
-     }
+    try:
+          
+      response=supabase.auth.get_user(token)
+      return {
+        "id":response.user.id,
+        "email":response.user.email,
+        "created_at":response.user.created_at
+    }
+    except Exception:
+       return JSONResponse(
+           status_code=401,
+           content="Invalid access token"
+       )
+          
+     
 # @Profilerouter.get("/protected/profile")
 # def protectedProfile(authorization: str = Header(default=None)):
 #     print("Authorization =", authorization)
