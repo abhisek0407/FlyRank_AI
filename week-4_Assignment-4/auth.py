@@ -1,4 +1,4 @@
-from fastapi import APIRouter,HTTPException,status,Header
+from fastapi import APIRouter,HTTPException,status,Header, Depends
 from pydantic import BaseModel,EmailStr
 from fastapi.responses import JSONResponse
 from supabase import create_client
@@ -74,6 +74,56 @@ def login(user:User):
           }
         )
 
+
+
+def verify_user(Authorization: Optional[str] = Header(None)):
+
+    if Authorization is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Access token required"
+        )
+
+    if not Authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail="Access token required"
+        )
+
+    token = Authorization.split(" ", 1)[1].strip()
+
+    if token == "":
+        raise HTTPException(
+            status_code=401,
+            detail="Access token required"
+        )
+
+    try:
+        response = supabase.auth.get_user(token)
+
+        if response.user is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired token"
+            )
+
+        return response.user
+
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token"
+        ) 
+@router.post("/logout",status_code=status.HTTP_204_NO_CONTENT)
+def logout(user=Depends(verify_user)):
+    try:
+        supabase.auth.sign_out()
+    except Exception:
+         raise HTTPException(
+              status_code=500,
+              detail="Logout failed"
+         )
+    
 Profilerouter = APIRouter(
     prefix="",
     tags=["Profile"]
@@ -84,42 +134,24 @@ def publicInfo():
           "message":"Welcome stranger! This info is public."
      }
 @Profilerouter.get("/protected/profile",status_code=status.HTTP_200_OK)
-def protectedProfile( Authorization: Optional[str] = Header(None)):
-     
-    if Authorization is None:
-          return JSONResponse(
-               status_code=401,
-               content={"error":"Access token required"}
-          )
-    if not Authorization.startswith("Bearer "):
-          return JSONResponse(
-               status_code=401,
-               content={
-                    "error":"Access token required"
-               }
-          )
-    token=Authorization.split(" ",1)[1].strip()
-
-    if token=="":
-          return JSONResponse(
-               status_code=401,
-               content={
-                    "error":"Access token required"
-               }
-          )
-    try:
-          
-      response=supabase.auth.get_user(token)
+def protectedProfile( user=Depends(verify_user)):
       return {
-        "id":response.user.id,
-        "email":response.user.email,
-        "created_at":response.user.created_at
+        "id":user.id,
+        "email":user.email,
+        "created_at":user.created_at
     }
-    except Exception:
-       return JSONResponse(
-           status_code=401,
-           content="Invalid access token"
-       )
+
+@Profilerouter.get(
+    "/protected/dashboard",
+    status_code=status.HTTP_200_OK
+)
+def dashboard(user = Depends(verify_user)):
+
+    return {
+        "message": "Welcome to your dashboard.",
+        "id": user.id,
+        "email": user.email
+    }
           
      
 # @Profilerouter.get("/protected/profile")
