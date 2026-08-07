@@ -1,7 +1,8 @@
-from fastapi import APIRouter,HTTPException,status
+from fastapi import APIRouter,HTTPException,status,Header
 from pydantic import BaseModel,EmailStr
 from fastapi.responses import JSONResponse
 from supabase import create_client
+from typing import Optional
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -72,3 +73,48 @@ def login(user:User):
               "error": "Invalid login credentials"
           }
         )
+
+Profilerouter = APIRouter(
+    prefix="",
+    tags=["Profile"]
+)
+@Profilerouter.get("/public/info",status_code=status.HTTP_200_OK)
+def publicInfo():
+     return {
+          "message":"Welcome stranger! This info is public."
+     }
+@Profilerouter.get("/protected/profile",status_code=status.HTTP_200_OK)
+def protectedProfile( Authorization: Optional[str] = Header(None)):
+     print("Authorization =", Authorization)
+     if Authorization is None:
+          return JSONResponse(
+               status_code=401,
+               content={"error":"Access token required"}
+          )
+     if not Authorization.startswith("Bearer "):
+          return JSONResponse(
+               status_code=401,
+               content={
+                    "error":"Access token required"
+               }
+          )
+     token=Authorization.split(" ",1)[1].strip()
+
+     if token=="":
+          return JSONResponse(
+               status_code=401,
+               content={
+                    "error":"Access token required"
+               }
+          )
+     return{
+          "message": "Protected route accessed successfully.",
+          "access_token": token
+     }
+# @Profilerouter.get("/protected/profile")
+# def protectedProfile(authorization: str = Header(default=None)):
+#     print("Authorization =", authorization)
+
+#     return {
+#         "received": authorization
+#     }

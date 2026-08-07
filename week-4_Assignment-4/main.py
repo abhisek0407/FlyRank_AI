@@ -7,7 +7,7 @@ import psycopg
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from auth import router as auth_router
+from auth import router as auth_router, Profilerouter
 DATABASE_URL=os.getenv("DATABASE_URL")
 conn=psycopg.connect(DATABASE_URL)
 cursor=conn.cursor()
@@ -35,6 +35,7 @@ app = FastAPI(
     version="1.0.0"
 )
 app.include_router(auth_router)
+app.include_router(Profilerouter)
 class taskFormat(BaseModel):
     title:str=Field(...,description="Name of the task",min_length=1)
 
