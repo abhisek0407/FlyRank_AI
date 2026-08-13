@@ -1,125 +1,3 @@
-<!-- # 🚀 FlyRank AI – Backend AI Engineering Internship
-
-Welcome to my internship repository for the **FlyRank AI Backend AI Engineering Internship**.
-
-This repository contains all the assignments, hands-on exercises, and backend development projects completed throughout the internship. The goal is to strengthen my backend engineering skills using **Python** and **FastAPI**, while building a strong foundation for AI-powered backend systems.
-
----
-
-## 👨‍💻 Intern
-
-**Name:** Abhisek Panda
-
-**Track:** Backend AI Engineering
-
-**Primary Language:** Python
-
-**Backend Framework:** FastAPI
-
----
-
-## 📂 Repository Structure
-
-```
-FlyRank_AI/
-│
-├── Week-2 Assignment-1/
-├── Week-3 Assignment-2/
-├── Week-3 Assignment-3/
-├── Week-4 Assignment-4/
-├── ...
-└── README.md
-```
-
-Each assignment is organized in its own folder with the corresponding source code, dependencies, and documentation.
-
----
-
-## 📌 Assignments
-
-| Assignment | Description | Status |
-|------------|-------------|--------|
-|Week-2 Assignment-1 | Basic CRUD API for TodoList | ✅ Completed |
-|Week-3 Assignment-2 | Connecting CRUD to the database | ✅ Completed |
-| Week-3 Assignment-3 | Containerize your stack | ✅ Completed |
-| Week-4 Assignment-4 | Auth · Login & protect | ✅ Completed |
-
----
-
-## 🛠️ Technologies Used
-
-- Python
-- FastAPI
-- Uvicorn
-- Pydantic
-- PostgreSQL
-- Supabase
-- Docker
-- Git
-- GitHub
-- VS Code
-
----
-
-## ▶️ Running an Assignment
-
-1. Navigate to the assignment folder.
-
-```bash
-cd Assignment-1
-```
-
-2. Create a virtual environment.
-
-```bash
-python -m venv myenv
-```
-
-3. Activate it.
-
-### Windows
-
-```bash
-myenv\Scripts\activate
-```
-
-4. Install dependencies.
-
-```bash
-pip install -r requirements.txt
-```
-
-5. Start the FastAPI server.
-
-```bash
-uvicorn main:app --reload
-```
-
-6. Open the browser.
-
-API:
-
-```
-http://127.0.0.1:8000
-```
-
-Swagger UI:
-
-```
-http://127.0.0.1:8000/docs
-```
-
----
-
-## 🎯 Objective
-
-This repository documents my learning journey during the FlyRank AI Backend AI Engineering Internship, where I am developing practical skills in backend API development, software engineering best practices, and AI-ready backend systems.
-
----
-
-## 📜 License
-
-This repository is maintained for educational and internship purposes. -->
 # 🚀 FlyRank AI – Backend AI Engineering Internship
 
 Welcome to my internship repository for the **FlyRank AI Backend AI Engineering Internship**.
@@ -143,107 +21,149 @@ This repository contains the assignments, hands-on exercises, and backend develo
 FlyRank_AI/
 │
 ├── Week-2 Assignment-1/
+│   └── README.md
+│
 ├── Week-3 Assignment-2/
+│   └── README.md
+│
 ├── Week-3 Assignment-3/
+│   └── README.md
+│
 ├── Week-4 Assignment-4/
-├── Week-5 Assignment-5/
-├── ...
-└── README.md
+│   └── README.md
+│
+├── Scraper/
+│   ├── src/
+│   ├── output/
+│   ├── requirements.txt
+│   ├── .gitignore
+│   └── README.md
+│
+└── README.md   ← this root README
+```
 
 Each assignment is organized in its own folder with the corresponding source code, dependencies, documentation, and project artifacts.
 
-📌 Assignments
-Assignment	Description	Technologies	Status
-Week-2 Assignment-1	Basic CRUD API for TodoList	Python, FastAPI, Pydantic	✅ Completed
-Week-3 Assignment-2	Connecting CRUD API to a database	Python, FastAPI, PostgreSQL	✅ Completed
-Week-3 Assignment-3	Containerize the backend and database stack	Docker, Docker Compose, FastAPI, PostgreSQL	✅ Completed
-Week-4 Assignment-4	Authentication, login and protected routes	FastAPI, Supabase, JWT, PostgreSQL	✅ Completed
-Week-5 Assignment-5	Polite web scraper and data extraction pipeline	Python, Requests, BeautifulSoup, Pydantic	✅ Completed
-🛠️ Technologies & Tools
-Backend
-Python
-FastAPI
-Uvicorn
-Pydantic
-Database
-PostgreSQL
-Psycopg
-Supabase
-Authentication
-Supabase Authentication
-JWT Access Tokens
-Bearer Authentication
-FastAPI Authentication Dependencies
-Web Scraping
-Python Requests
-BeautifulSoup4
-HTML Parsing
-URL Discovery
-Page Caching
-Data Normalization
-Pydantic Validation
-Failure Handling
-Run Reporting
-DevOps & Development Tools
-Docker
-Docker Compose
-Git
-GitHub
-VS Code
-📚 Assignment Overview
-1️⃣ Week-2 Assignment-1 — Basic CRUD API
+---
+
+## 📌 Assignments
+
+| Assignment | Description | Technologies | Status |
+|---|---|---|---|
+| Week-2 Assignment-1 | Basic CRUD API for TodoList | Python, FastAPI, Pydantic | ✅ Completed |
+| Week-3 Assignment-2 | Connecting CRUD API to a database | Python, FastAPI, PostgreSQL | ✅ Completed |
+| Week-3 Assignment-3 | Containerize the backend and database stack | Docker, Docker Compose, FastAPI, PostgreSQL | ✅ Completed |
+| Week-4 Assignment-4 | Authentication, login and protected routes | FastAPI, Supabase, JWT, PostgreSQL | ✅ Completed |
+| Week-5 Assignment-5(Scraper) | Polite web scraper and data extraction pipeline | Python, Requests, BeautifulSoup, Pydantic | ✅ Completed |
+
+---
+
+## 🛠️ Technologies & Tools
+
+### Backend
+- Python
+- FastAPI
+- Uvicorn
+- Pydantic
+
+### Database
+- PostgreSQL
+- Psycopg
+- Supabase
+
+### Authentication
+- Supabase Authentication
+- JWT Access Tokens
+- Bearer Authentication
+- FastAPI Authentication Dependencies
+
+### Web Scraping
+- Python Requests
+- BeautifulSoup4
+- HTML Parsing
+- URL Discovery
+- Page Caching
+- Data Normalization
+- Pydantic Validation
+- Failure Handling
+- Run Reporting
+
+### DevOps & Development Tools
+- Docker
+- Docker Compose
+- Git
+- GitHub
+- VS Code
+
+---
+
+## 📚 Assignment Overview
+
+### 1️⃣ Week-2 Assignment-1 — Basic CRUD API
 
 Built a basic Task/Todo management REST API using FastAPI.
 
-Key Concepts
-FastAPI application structure
-REST API endpoints
-GET, POST, PUT and DELETE
-Pydantic request validation
-HTTP status codes
-Error handling
-Swagger UI
-2️⃣ Week-3 Assignment-2 — Database Integration
+**Key concepts**
+- FastAPI application structure
+- REST API endpoints
+- GET, POST, PUT and DELETE
+- Pydantic request validation
+- HTTP status codes
+- Error handling
+- Swagger UI
+
+---
+
+### 2️⃣ Week-3 Assignment-2 — Database Integration
 
 Extended the CRUD API by connecting it to a PostgreSQL database.
 
-Key Concepts
-PostgreSQL
-Database connections
-SQL queries
-CRUD operations with persistent data
-FastAPI + PostgreSQL integration
-Database-backed REST APIs
-3️⃣ Week-3 Assignment-3 — Containerization
+**Key concepts**
+- PostgreSQL
+- Database connections
+- SQL queries
+- CRUD operations with persistent data
+- FastAPI + PostgreSQL integration
+- Database-backed REST APIs
+
+---
+
+### 3️⃣ Week-3 Assignment-3 — Containerization
 
 Containerized the application and PostgreSQL database using Docker.
 
-Key Concepts
-Docker
-Dockerfile
-Docker Compose
-Application containers
-PostgreSQL containers
-Container networking
-Environment variables
-Multi-container backend applications
-4️⃣ Week-4 Assignment-4 — Authentication API
+**Key concepts**
+- Docker
+- Dockerfile
+- Docker Compose
+- Application containers
+- PostgreSQL containers
+- Container networking
+- Environment variables
+- Running a multi-container backend stack
+
+---
+
+### 4️⃣ Week-4 Assignment-4 — Authentication API
 
 Built an authentication system using FastAPI and Supabase.
 
-Features
-User signup
-User login
-JWT access token
-Refresh token
-Public routes
-Supabase
-Protected routes
-Token verification
-Reusable authentication dependency
-Logout
-Swagger Bearer authentication
-Authentication Flow
+**Features**
+- User signup
+- User login
+- JWT access token
+- Refresh token
+- Public routes
+- Supabase integration
+- Protected routes
+- Token verification
+- Reusable authentication dependency
+- Logout
+- Swagger Bearer authentication
+
+**Authentication flow**
+
+```text
 Signup
    ↓
 Login
@@ -257,13 +177,21 @@ Reusable Auth Dependency
 Protected Routes
    ↓
 Logout
-5️⃣ Week-5 Assignment-5 — Web Scraping Pipeline
+```
 
-Built a polite and failure-tolerant web scraper for the Books to Scrape website.
+The assignment also included PostgreSQL integration and Docker support.
 
-The scraper processes the first three catalogue pages and discovers 60 unique books.
+---
 
-Scraping Pipeline
+### 5️⃣ Week-5 Assignment-5 — Web Scraping Pipeline
+
+Built a polite and failure-tolerant web scraper for the **Books to Scrape** website.
+
+The scraper processes the first three catalogue pages and discovers **60 unique books**.
+
+**Scraping pipeline**
+
+```text
 Catalogue Pages
       ↓
 Fetch HTML
@@ -283,87 +211,109 @@ Validate with Pydantic
 books.json
       ↓
 run-report.json
-Extracted Information
+```
+
+**Extracted information**
 
 Each validated book record contains:
+- Title
+- Product URL
+- Original price text
+- Normalized GBP price
+- Availability
+- Rating
+- Description
+- Source catalogue page
+- Fetch timestamp
 
-Title
-Product URL
-Original price text
-Normalized GBP price
-Availability
-Rating
-Description
-Source catalogue page
-Fetch timestamp
-Reliability Features
+**Reliability features**
 
 The scraper implements:
+- Custom User-Agent
+- Request timeout
+- Request delay
+- HTML caching
+- HTTP status validation
+- Retry for temporary failures
+- Handling of individual page failures
+- Pydantic record validation
+- Duplicate URL prevention
+- Idempotent output
+- Error logging
+- Run reporting
 
-Custom User-Agent
-Request timeout
-Request delay
-HTML caching
-HTTP status validation
-Retry for temporary failures
-Individual page failure handling
-Pydantic record validation
-Duplicate URL prevention
-Idempotent output
-Error logging
-Run reporting
-Output
+**Output**
+
+```text
 output/
 ├── books.json
 ├── errors.json
 └── run-report.json
+```
 
 The scraper is designed so that running it multiple times does not create duplicate records.
 
-Browser Requirement
+**Browser requirement**
 
 No Selenium or browser automation is required for this assignment because the required book information is already present in the HTML returned by the server. Using a browser would only add unnecessary overhead.
 
-▶️ Running an Assignment
+---
+
+## ▶️ Running an Assignment
 
 Each assignment contains its own dependencies and instructions.
 
 For example:
 
+```bash
 cd "Week-5 Assignment-5"
+```
 
 Create a virtual environment:
 
+```bash
 python -m venv myenv
+```
 
 Activate it on Windows:
 
+```bash
 myenv\Scripts\activate
+```
 
 Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
-Then follow the README.md inside the individual assignment folder for the assignment-specific run command and configuration.
+Then follow the `README.md` inside the individual assignment folder for the assignment-specific run command and configuration.
 
-🔐 Security
+---
+
+## 🔐 Security
 
 Sensitive credentials and environment variables are not committed to the repository.
 
-Examples of information that should remain local:
+Examples of secrets that should remain local include:
 
+```text
 .env
 API keys
 Database credentials
 Supabase keys
 JWT secrets
+```
 
-Environment variables should be stored locally and loaded by the application through configuration.
+Environment variables should be stored locally and referenced by the application through configuration.
 
-📈 Learning Progress
+---
 
-The assignments progressively cover:
+## 📈 Learning Progress
 
+The assignments have progressively covered:
+
+```text
 Assignment 1
 Basic REST APIs
       ↓
@@ -378,32 +328,39 @@ Authentication & Authorization
       ↓
 Assignment 5
 Web Scraping & Data Pipelines
+```
 
-This progression has provided practical experience across different areas of backend engineering, from API development and databases to authentication, containerization, and reliable data extraction pipelines.
+This progression has helped build practical experience across different areas of backend engineering, from API development and databases to authentication, containerization, and data extraction pipelines.
 
-🎯 Internship Objective
+---
 
-The objective of this repository is to document my practical learning journey during the FlyRank AI Backend AI Engineering Internship.
+## 🎯 Internship Objective
 
-Through these assignments, I am developing practical skills in:
+The objective of this repository is to document my practical learning journey during the **FlyRank AI Backend AI Engineering Internship**.
 
-Backend API development
-REST architecture
-Database integration
-Authentication and authorization
-Containerization
-Web scraping
-Data validation and normalization
-Error handling
-Reliable backend workflows
-Git and GitHub
-Writing maintainable backend code
-👨‍💻 Author
+Through these assignments, I am developing skills in:
+- Backend API development
+- REST architecture
+- Database integration
+- Authentication and authorization
+- Containerization
+- Web scraping
+- Data validation and normalization
+- Error handling
+- Reliable backend workflows
+- Git and GitHub
+- Writing maintainable backend code
 
-Abhisek Panda
+---
+
+## 👨‍💻 Author
+
+**Abhisek Panda**
 
 FlyRank AI – Backend AI Engineering Intern
 
-📜 License
+---
+
+## 📜 License
 
 This repository is maintained for educational and internship purposes.
