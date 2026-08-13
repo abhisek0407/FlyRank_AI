@@ -12,13 +12,18 @@ BASE_URL = "https://books.toscrape.com/catalogue/page-1.html"
 
 CACHE_DIR = Path("cache")
 CACHE_FILE = CACHE_DIR / "catalogue-page-1.html"
-
+OUTPUT_DIR=Path("output")
 HEADERS = {
     "User-Agent": "FlyRankInternship A9/1.0 (+https://github.com/abhisek0407/FlyRank_AI)"
 }
 
 TIMEOUT = 10
 REQUEST_DELAY=0.5
+run_stats = {
+    "pages_fetched": 0,
+    "cache_hits": 0,
+    "failed_pages": []
+}
 
 def fetch_and_cache():
 
@@ -26,7 +31,7 @@ def fetch_and_cache():
     if CACHE_FILE.exists():
 
         html = CACHE_FILE.read_text(encoding="utf-8")
-
+        run_stats["cache_hits"] += 1
         print(f"CACHE: {CACHE_FILE}")
         print(f"Response size: {len(html.encode('utf-8'))} bytes")
 
@@ -46,7 +51,7 @@ def fetch_and_cache():
         raise RuntimeError(
             f"Fetch failed. HTTP status: {response.status_code}"
         )
-
+    run_stats["pages_fetched"] += 1
     html = response.text
 
     # Create cache directory
@@ -110,6 +115,7 @@ def stage2():
             f"Fetch failed. HTTP status: "
             f"{response.status_code}"
         )
+        run_stats["pages_fetched"] += 1
 
         html = response.text
         cache_file=CACHE_DIR/f"catalogue-page-{catalouge_pages+1}.html"
@@ -156,7 +162,7 @@ def fetch_book_page(
         html = cache_file.read_text(
             encoding="utf-8"
         )
-
+        run_stats["cache_hits"]+=1
         print(
             f"CACHE: {cache_file}"
         )
@@ -173,44 +179,187 @@ def fetch_book_page(
     print(
         f"FETCH: {product_url}"
     )
-
-    response = requests.get(
+    try:
+     response = requests.get(
         product_url,
         headers=HEADERS,
         timeout=TIMEOUT
-    )
-
-    # Only HTTP 200 is accepted
-    if response.status_code != 200:
-
-        raise RuntimeError(
-            f"Fetch failed for {product_url}. "
-            f"HTTP status: {response.status_code}"
+     )
+    except requests.exceptions.Timeout:
+        print(
+            "Timeout occurred."
         )
 
-    html = response.text
+        print(
+            "Waiting before retry..."
+        )
+
+        time.sleep(1)
+
+        # ----------------------------------------------------
+        # RETRY ONCE
+        # ----------------------------------------------------
+
+        try:
+
+            print(
+                f"RETRY: {product_url}"
+            )
+
+            response = requests.get(
+                product_url,
+                headers=HEADERS,
+                timeout=TIMEOUT
+            )
+
+        except requests.exceptions.Timeout:
+
+            raise RuntimeError(
+                "Request timed out after retry"
+            )
+        except requests.exceptions.RequestException as error:
+
+            raise RuntimeError(
+                f"Request failed after retry: {error}"
+            )
+    except requests.exceptions.RequestException as error:
+
+        raise RuntimeError(
+            f"Request failed: {error}"
+        )
+
+    if response.status_code == 200:
+
+        run_stats["pages_fetched"] += 1
+
+        html = response.text
+
+        CACHE_DIR.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        cache_file.write_text(
+            html,
+            encoding="utf-8"
+        )
+
+        print(
+            f"Saved: {cache_file}"
+        )
+
+        print(
+            f"Response size: "
+            f"{len(response.content)} bytes"
+        )
+
+        return html
 
 
-    CACHE_DIR.mkdir(
-        parents=True,
-        exist_ok=True
+    # --------------------------------------------------------
+    # 5xx SERVER ERROR
+    #
+    # Retry ONCE
+    # --------------------------------------------------------
+
+    if 500 <= response.status_code <= 599:
+
+        print(
+            f"Server error: "
+            f"HTTP {response.status_code}"
+        )
+
+        print(
+            "Waiting before retry..."
+        )
+
+        time.sleep(1)
+
+        try:
+
+            print(
+                f"RETRY: {product_url}"
+            )
+
+            retry_response = requests.get(
+                product_url,
+                headers=HEADERS,
+                timeout=TIMEOUT
+            )
+
+        except requests.exceptions.Timeout:
+
+            raise RuntimeError(
+                "Retry timed out"
+            )
+
+        except requests.exceptions.RequestException as error:
+
+            raise RuntimeError(
+                f"Retry request failed: {error}"
+            )
+
+
+        if retry_response.status_code == 200:
+
+            run_stats["pages_fetched"] += 1
+
+            html = retry_response.text
+
+            CACHE_DIR.mkdir(
+                parents=True,
+                exist_ok=True
+            )
+
+            cache_file.write_text(
+                html,
+                encoding="utf-8"
+            )
+
+            print(
+                f"Saved: {cache_file}"
+            )
+
+            print(
+                f"Response size: "
+                f"{len(retry_response.content)} bytes"
+            )
+
+            return html
+
+        raise RuntimeError(
+            f"HTTP {retry_response.status_code} "
+            f"after retry"
+        )
+
+
+   
+
+    if response.status_code == 403:
+
+        raise RuntimeError(
+            "HTTP 403 Forbidden - "
+            "request was rejected; not retrying"
+        )
+
+
+   
+
+    if response.status_code == 404:
+
+        raise RuntimeError(
+            "HTTP 404 Not Found - "
+            "page does not exist; not retrying"
+        )
+
+
+    
+
+    raise RuntimeError(
+        f"HTTP {response.status_code}"
     )
 
-    cache_file.write_text(
-        html,
-        encoding="utf-8"
-    )
 
-    print(
-        f"Saved: {cache_file}"
-    )
-
-    print(
-        f"Response size: "
-        f"{len(response.content)} bytes"
-    )
-
-    return html
 
 def stage3(book_records):
     raw_records=[]
@@ -239,157 +388,234 @@ def stage3(book_records):
         )
 
 
-        html = fetch_book_page(
-            product_url,
-            cache_file
-        )
-        soup=BeautifulSoup(html,"html.parser")
-        product = soup.select_one(
-            "article.product_page"
-        )
+        try:
 
-        if product is None:
-            raise RuntimeError(
-                f"Product area not found: "
-                f"{product_url}"
-            )
-        title_element = product.select_one(
-            "h1"
-        )
-
-        title = (
-            title_element.get_text(
-                strip=True
-            )
-            if title_element
-            else None
-        )
-
-        # ----------------------------------------------------
-        # Price
-        # ----------------------------------------------------
-
-        price_element = product.select_one(
-            ".price_color"
-        )
-
-        price_text = (
-            price_element.get_text(
-                " ",
-                strip=True
-            )
-            if price_element
-            else None
-        )
-
-        # ----------------------------------------------------
-        # Availability
-        # ----------------------------------------------------
-
-        availability_element = product.select_one(
-            ".availability"
-        )
-
-        availability_text = (
-            availability_element.get_text(
-                " ",
-                strip=True
-            )
-            if availability_element
-            else None
-        )
-
-        # ----------------------------------------------------
-        # Rating
-        # ----------------------------------------------------
-
-        rating_element = product.select_one(
-            "p.star-rating"
-        )
-
-        rating_text = None
-
-        if rating_element:
-
-            classes = rating_element.get(
-                "class",
-                []
+            html = fetch_book_page(
+                product_url,
+                cache_file
             )
 
-            rating_names = {
-                "One",
-                "Two",
-                "Three",
-                "Four",
-                "Five"
-            }
+            soup = BeautifulSoup(
+                html,
+                "html.parser"
+            )
 
-            for class_name in classes:
+            # ------------------------------------------------
+            # PRODUCT AREA
+            # ------------------------------------------------
 
-                if class_name in rating_names:
+            product = soup.select_one(
+                "article.product_page"
+            )
 
-                    rating_text = class_name
-                    break
+            if product is None:
 
-        # ----------------------------------------------------
-        # Description
-        # ----------------------------------------------------
+                raise RuntimeError(
+                    "Product area not found"
+                )
 
-        description = None
+            # ------------------------------------------------
+            # TITLE
+            # ------------------------------------------------
 
-        description_heading = product.select_one(
-            "#product_description"
-        )
+            title_element = product.select_one(
+                "h1"
+            )
 
-        if description_heading:
+            title = (
+                title_element.get_text(
+                    strip=True
+                )
+                if title_element
+                else None
+            )
 
-            description_element = (
-                description_heading.find_next_sibling(
-                    "p"
+            # ------------------------------------------------
+            # PRICE
+            # ------------------------------------------------
+
+            price_element = product.select_one(
+                ".price_color"
+            )
+
+            price_text = (
+                price_element.get_text(
+                    " ",
+                    strip=True
+                )
+                if price_element
+                else None
+            )
+
+            # ------------------------------------------------
+            # AVAILABILITY
+            # ------------------------------------------------
+
+            availability_element = (
+                product.select_one(
+                    ".availability"
                 )
             )
 
-            if description_element:
+            availability_text = (
+                availability_element.get_text(
+                    " ",
+                    strip=True
+                )
+                if availability_element
+                else None
+            )
 
-                description = (
-                    description_element.get_text(
-                        " ",
-                        strip=True
+            # ------------------------------------------------
+            # RATING
+            # ------------------------------------------------
+
+            rating_element = product.select_one(
+                "p.star-rating"
+            )
+
+            rating_text = None
+
+            if rating_element:
+
+                classes = rating_element.get(
+                    "class",
+                    []
+                )
+
+                rating_names = {
+                    "One",
+                    "Two",
+                    "Three",
+                    "Four",
+                    "Five"
+                }
+
+                for class_name in classes:
+
+                    if class_name in rating_names:
+
+                        rating_text = class_name
+
+                        break
+
+            # ------------------------------------------------
+            # DESCRIPTION
+            # ------------------------------------------------
+
+            description = None
+
+            description_heading = (
+                product.select_one(
+                    "#product_description"
+                )
+            )
+
+            if description_heading:
+
+                description_element = (
+                    description_heading.find_next_sibling(
+                        "p"
                     )
                 )
 
+                if description_element:
+
+                    description = (
+                        description_element.get_text(
+                            " ",
+                            strip=True
+                        )
+                    )
+
+            # ------------------------------------------------
+            # TIMESTAMP
+            # ------------------------------------------------
+
+            fetched_at = (
+                datetime.now(
+                    timezone.utc
+                )
+                .isoformat()
+                .replace(
+                    "+00:00",
+                    "Z"
+                )
+            )
+
+            # ------------------------------------------------
+            # RAW RECORD
+            # ------------------------------------------------
+
+            record = {
+
+                "title": title,
+
+                "product_url": product_url,
+
+                "price_text": price_text,
+
+                "availability_text":
+                    availability_text,
+
+                "rating_text":
+                    rating_text,
+
+                "description":
+                    description,
+
+                "source_page":
+                    source_page,
+
+                "fetched_at":
+                    fetched_at
+            }
+
+            raw_records.append(
+                record
+            )
+
+            print(
+                "SUCCESS: book extracted"
+            )
+
+        # ====================================================
+        # FAILURE
+        # ====================================================
+
+        except Exception as error:
+
+            print(
+                f"FAILED: {product_url}"
+            )
+
+            print(
+                f"Reason: {error}"
+            )
+
+            # Save failure information
+            run_stats[
+                "failed_pages"
+            ].append({
+
+                "url": product_url,
+
+                "source_page": source_page,
+
+                "reason": str(error)
+            })
+
+            print(
+                "Continuing with next book..."
+            )
+
         # ----------------------------------------------------
-        # Timestamp
+        # POLITENESS DELAY
         # ----------------------------------------------------
 
-        fetched_at = (
-            datetime.now(timezone.utc)
-            .isoformat()
-            .replace("+00:00", "Z")
+        time.sleep(
+            REQUEST_DELAY
         )
-
-        # ----------------------------------------------------
-        # Raw record
-        # ----------------------------------------------------
-
-        record = {
-            "title": title,
-            "product_url": product_url,
-            "price_text": price_text,
-            "availability_text": availability_text,
-            "rating_text": rating_text,
-            "description": description,
-            "source_page": source_page,
-            "fetched_at": fetched_at
-        }
-
-        raw_records.append(record)
-
-        # ----------------------------------------------------
-        # Delay before next network request
-        # ----------------------------------------------------
-
-        time.sleep(REQUEST_DELAY)
 
     # ========================================================
     # STAGE 3 CHECKPOINT
@@ -404,15 +630,15 @@ def stage3(book_records):
     )
 
     print(
-        f"successful_records="
-        f"{sum(1 for r in raw_records if r['title'])}"
-    )
-
-    print(
-        "\nComplete raw record:"
+        f"failed_pages="
+        f"{len(run_stats['failed_pages'])}"
     )
 
     if raw_records:
+
+        print(
+            "\nComplete raw record:"
+        )
 
         print(
             json.dumps(
@@ -556,14 +782,164 @@ def stage4(raw_records):
             )
         )
     return valid_records,errors
+def write_run_report(
+    start_time,
+    valid_records,
+    errors
+):
+
+    end_time = datetime.now(
+        timezone.utc
+    )
+
+    duration = (
+        end_time - start_time
+    ).total_seconds()
+
+    report = {
+
+        "started_at":
+            start_time
+            .isoformat()
+            .replace(
+                "+00:00",
+                "Z"
+            ),
+
+        "finished_at":
+            end_time
+            .isoformat()
+            .replace(
+                "+00:00",
+                "Z"
+            ),
+
+        "duration_seconds":
+            round(
+                duration,
+                2
+            ),
+
+        "pages_fetched":
+            run_stats[
+                "pages_fetched"
+            ],
+
+        "cache_hits":
+            run_stats[
+                "cache_hits"
+            ],
+
+        "valid_records":
+            len(valid_records),
+
+        "invalid_records":
+            len(errors),
+
+        "failed_pages":
+            len(
+                run_stats[
+                    "failed_pages"
+                ]
+            ),
+
+        "failed_page_details":
+            run_stats[
+                "failed_pages"
+            ]
+    }
+
+    OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    report_file = (
+        OUTPUT_DIR /
+        "run-report.json"
+    )
+
+    with open(
+        report_file,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            report,
+            file,
+            indent=2,
+            ensure_ascii=False
+        )
+
+    print("\n=============================")
+    print("STAGE 5 CHECKPOINT")
+    print("=============================")
+
+    print(
+        f"pages_fetched="
+        f"{report['pages_fetched']}"
+    )
+
+    print(
+        f"cache_hits="
+        f"{report['cache_hits']}"
+    )
+
+    print(
+        f"valid_records="
+        f"{report['valid_records']}"
+    )
+
+    print(
+        f"invalid_records="
+        f"{report['invalid_records']}"
+    )
+
+    print(
+        f"failed_pages="
+        f"{report['failed_pages']}"
+    )
+
+    print(
+        f"duration_seconds="
+        f"{report['duration_seconds']}"
+    )
+
+    print(
+        f"Saved: {report_file}"
+    )
+
+    return report
 
 if __name__ == "__main__":
+    start_time=datetime.now(timezone.utc)
+    print("SCRAPER STARTED")
     fetch_and_cache()
     book_records=stage2()
+    book_records.append({
+
+        "product_url":
+            "https://books.toscrape.com/"
+            "catalogue/fake-book-stage5/"
+            "index.html",
+
+        "source_page":
+            BASE_URL
+    })
+
+    print(
+        "\nTEMPORARY TEST: "
+        "Added one fake book URL."
+    )
+
     raw_records=stage3(
         book_records
     )
     valid_records,errors=stage4(raw_records)
-
+    write_run_report(
+        start_time,valid_records,errors
+    )
+    print("SCRAPER FINISHED")
     
     
