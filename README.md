@@ -21,16 +21,16 @@ This repository contains the assignments, hands-on exercises, and backend develo
 FlyRank_AI/
 │
 ├── Week-2 Assignment-1/
-│   └── README.md
+│   
 │
 ├── Week-3 Assignment-2/
-│   └── README.md
+│  
 │
 ├── Week-3 Assignment-3/
-│   └── README.md
+│  
 │
 ├── Week-4 Assignment-4/
-│   └── README.md
+│   
 │
 ├── Scraper/
 │   ├── src/
