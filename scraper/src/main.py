@@ -2,7 +2,8 @@
 import requests
 import time
 import json
-
+from pydantic import BaseModel,HttpUrl
+from typing import Optional
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -422,9 +423,139 @@ def stage3(book_records):
         )
 
     return raw_records
+class BookRecord(BaseModel):
+    title: str
+    product_url: HttpUrl
+    price_text: str
+    price_gbp: float
+    availability_text: str
+    rating_text: str
+    description: Optional[str] = None
+    source_page: HttpUrl
+    fetched_at: str
+def normalize_price(price_text):
+    if not price_text:
+        raise ValueError("Price_text is missing")
+    cleaned_price=(
+        price_text
+        .replace("Â£", "")
+        .replace("£", "")
+        .strip()
+    )
+    try:
+        return float(cleaned_price)
+    except ValueError:
+        raise ValueError(
+            f"Invalid price_text:{price_text}"
+        )
+def stage4(raw_records):
+    print("\n=============================")
+    print("STAGE 4: VALIDATE NORMALIZED RECORDS")
+    print("=============================")
+    output_dir=Path("output")
+    output_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+    books_file=output_dir/"books.json"
+    errors_file=output_dir/"errors.json"
 
+    valid_records=[]
+    errors=[]
 
+    seen_urls=set()
+    for record in raw_records:
+        product_url=record.get("product_url")
+        try:
+            if product_url in seen_urls:
+                continue
+            seen_urls.add(product_url)
+            price_gbp=normalize_price(record.get("price_text"))
 
+            normalized_record = {
+                "title": record.get("title"),
+                "product_url": product_url,
+                "price_text": record.get("price_text"),
+                "price_gbp": price_gbp,
+                "availability_text": record.get(
+                    "availability_text"
+                ),
+                "rating_text": record.get(
+                    "rating_text"
+                ),
+                "description": record.get(
+                    "description"
+                ),
+                "source_page": record.get(
+                    "source_page"
+                ),
+                "fetched_at": record.get(
+                    "fetched_at"
+                )
+            }
+
+            validate_record=BookRecord(**normalized_record)
+            valid_records.append(validate_record.model_dump(mode="json"))
+        except Exception as error:
+            errors.append({
+                "product_url":product_url,
+                "reason":str(error)
+            })
+
+    with open(books_file,"w",encoding="utf-8") as file:
+        json.dump(
+            valid_records,
+            file,
+            indent=2,
+            ensure_ascii=False
+        )
+    with open(errors_file,"w",encoding="utf-8") as file:
+        json.dump(
+            errors,
+            file,
+            indent=2,
+            ensure_ascii=False
+        )
+    print("\n=============================")
+    print("STAGE 4 CHECKPOINT")
+    print("=============================")
+
+    print(
+        f"input_records={len(raw_records)}"
+    )
+
+    print(
+        f"valid_records={len(valid_records)}"
+    )
+
+    print(
+        f"errors={len(errors)}"
+    )
+
+    print(
+        f"unique_product_urls={len(seen_urls)}"
+    )
+
+    print(
+        f"books.json={books_file}"
+    )
+
+    print(
+        f"errors.json={errors_file}"
+    )
+
+    if valid_records:
+
+        print("\nComplete normalized record:")
+
+        print(
+            json.dumps(
+                valid_records[0],
+                indent=2,
+                ensure_ascii=False
+            )
+        )
+    return valid_records,errors
 
 if __name__ == "__main__":
     fetch_and_cache()
@@ -432,6 +563,7 @@ if __name__ == "__main__":
     raw_records=stage3(
         book_records
     )
+    valid_records,errors=stage4(raw_records)
 
     
     
