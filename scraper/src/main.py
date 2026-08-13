@@ -81,7 +81,7 @@ def stage2():
                 absolute_url=urljoin(page_url,href)
                 book_urls.append(absolute_url)
 
-        if catalouge_pages>3:
+        if catalouge_pages==3:
             break
         next_page=soup.select_one("li.next a")
 
@@ -111,26 +111,26 @@ def stage2():
         f"Saved: {cache_file}"
         )
         page_url = next_url
-        unique_urls = list(
+    unique_urls = list(
         dict.fromkeys(book_urls)
     )
-        print("\n-----------------------------")
-        print("STAGE 2 CHECKPOINT")
-        print("-----------------------------")
+    print("\n-----------------------------")
+    print("STAGE 2 CHECKPOINT")
+    print("-----------------------------")
 
-        print(
-            f"catalogue_pages={catalouge_pages}"
-        )
-
-        print(
-            f"discovered={len(book_urls)}"
-        )
-
-        print(
-            f"unique_urls={len(unique_urls)}"
+    print(
+        f"catalogue_pages={catalouge_pages}"
     )
 
-        return unique_urls
+    print(
+        f"discovered={len(book_urls)}"
+    )
+
+    print(
+        f"unique_urls={len(unique_urls)}"
+   )
+
+    return unique_urls
 
 
 
