@@ -1,9 +1,12 @@
 
 import requests
 import time
+import json
+
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from datetime import datetime,timezone
 BASE_URL = "https://books.toscrape.com/catalogue/page-1.html"
 
 CACHE_DIR = Path("cache")
@@ -14,7 +17,7 @@ HEADERS = {
 }
 
 TIMEOUT = 10
-
+REQUEST_DELAY=0.5
 
 def fetch_and_cache():
 
@@ -79,7 +82,10 @@ def stage2():
             href=link.get("href")
             if href:
                 absolute_url=urljoin(page_url,href)
-                book_urls.append(absolute_url)
+                book_urls.append({
+                    "product_url":absolute_url,
+                    "source_page":page_url
+                })
 
         if catalouge_pages==3:
             break
@@ -90,7 +96,7 @@ def stage2():
                 "Next page link not found"
             )
         next_url=urljoin(page_url,next_page.get("href"))
-        time.sleep(0.5)
+        time.sleep(REQUEST_DELAY)
         print(f"FETCH: {next_url}")
 
         response = requests.get(
@@ -111,9 +117,13 @@ def stage2():
         f"Saved: {cache_file}"
         )
         page_url = next_url
-    unique_urls = list(
-        dict.fromkeys(book_urls)
-    )
+    unique_records = []
+    seen_urls = set()
+
+    for record in book_urls:
+        if record["product_url"] not in seen_urls:
+            seen_urls.add(record["product_url"])
+            unique_records.append(record)
     print("\n-----------------------------")
     print("STAGE 2 CHECKPOINT")
     print("-----------------------------")
@@ -127,16 +137,301 @@ def stage2():
     )
 
     print(
-        f"unique_urls={len(unique_urls)}"
+        f"unique_urls={len(unique_records)}"
    )
 
-    return unique_urls
+    return unique_records
+
+
+def fetch_book_page(
+    product_url,
+    cache_file
+):
+
+   
+
+    if cache_file.exists():
+
+        html = cache_file.read_text(
+            encoding="utf-8"
+        )
+
+        print(
+            f"CACHE: {cache_file}"
+        )
+
+        print(
+            f"Response size: "
+            f"{len(html.encode('utf-8'))} bytes"
+        )
+
+        return html
+
+   
+
+    print(
+        f"FETCH: {product_url}"
+    )
+
+    response = requests.get(
+        product_url,
+        headers=HEADERS,
+        timeout=TIMEOUT
+    )
+
+    # Only HTTP 200 is accepted
+    if response.status_code != 200:
+
+        raise RuntimeError(
+            f"Fetch failed for {product_url}. "
+            f"HTTP status: {response.status_code}"
+        )
+
+    html = response.text
+
+
+    CACHE_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    cache_file.write_text(
+        html,
+        encoding="utf-8"
+    )
+
+    print(
+        f"Saved: {cache_file}"
+    )
+
+    print(
+        f"Response size: "
+        f"{len(response.content)} bytes"
+    )
+
+    return html
+
+def stage3(book_records):
+    raw_records=[]
+    total_books=len(book_records)
+    print("\n=============================")
+    print("STAGE 3: EXTRACT BOOK DETAILS")
+    print("=============================")
+    for index,book_record in enumerate(book_records,start=1):
+        product_url = book_record[
+            "product_url"
+        ]
+
+        source_page = book_record[
+            "source_page"
+        ]
+
+        print(
+            f"\nProcessing book "
+            f"{index}/{total_books}"
+        )
+
+
+        cache_file = (
+            CACHE_DIR /
+            f"book-{index}.html"
+        )
+
+
+        html = fetch_book_page(
+            product_url,
+            cache_file
+        )
+        soup=BeautifulSoup(html,"html.parser")
+        product = soup.select_one(
+            "article.product_page"
+        )
+
+        if product is None:
+            raise RuntimeError(
+                f"Product area not found: "
+                f"{product_url}"
+            )
+        title_element = product.select_one(
+            "h1"
+        )
+
+        title = (
+            title_element.get_text(
+                strip=True
+            )
+            if title_element
+            else None
+        )
+
+        # ----------------------------------------------------
+        # Price
+        # ----------------------------------------------------
+
+        price_element = product.select_one(
+            ".price_color"
+        )
+
+        price_text = (
+            price_element.get_text(
+                " ",
+                strip=True
+            )
+            if price_element
+            else None
+        )
+
+        # ----------------------------------------------------
+        # Availability
+        # ----------------------------------------------------
+
+        availability_element = product.select_one(
+            ".availability"
+        )
+
+        availability_text = (
+            availability_element.get_text(
+                " ",
+                strip=True
+            )
+            if availability_element
+            else None
+        )
+
+        # ----------------------------------------------------
+        # Rating
+        # ----------------------------------------------------
+
+        rating_element = product.select_one(
+            "p.star-rating"
+        )
+
+        rating_text = None
+
+        if rating_element:
+
+            classes = rating_element.get(
+                "class",
+                []
+            )
+
+            rating_names = {
+                "One",
+                "Two",
+                "Three",
+                "Four",
+                "Five"
+            }
+
+            for class_name in classes:
+
+                if class_name in rating_names:
+
+                    rating_text = class_name
+                    break
+
+        # ----------------------------------------------------
+        # Description
+        # ----------------------------------------------------
+
+        description = None
+
+        description_heading = product.select_one(
+            "#product_description"
+        )
+
+        if description_heading:
+
+            description_element = (
+                description_heading.find_next_sibling(
+                    "p"
+                )
+            )
+
+            if description_element:
+
+                description = (
+                    description_element.get_text(
+                        " ",
+                        strip=True
+                    )
+                )
+
+        # ----------------------------------------------------
+        # Timestamp
+        # ----------------------------------------------------
+
+        fetched_at = (
+            datetime.now(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+
+        # ----------------------------------------------------
+        # Raw record
+        # ----------------------------------------------------
+
+        record = {
+            "title": title,
+            "product_url": product_url,
+            "price_text": price_text,
+            "availability_text": availability_text,
+            "rating_text": rating_text,
+            "description": description,
+            "source_page": source_page,
+            "fetched_at": fetched_at
+        }
+
+        raw_records.append(record)
+
+        # ----------------------------------------------------
+        # Delay before next network request
+        # ----------------------------------------------------
+
+        time.sleep(REQUEST_DELAY)
+
+    # ========================================================
+    # STAGE 3 CHECKPOINT
+    # ========================================================
+
+    print("\n=============================")
+    print("STAGE 3 CHECKPOINT")
+    print("=============================")
+
+    print(
+        f"records={len(raw_records)}"
+    )
+
+    print(
+        f"successful_records="
+        f"{sum(1 for r in raw_records if r['title'])}"
+    )
+
+    print(
+        "\nComplete raw record:"
+    )
+
+    if raw_records:
+
+        print(
+            json.dumps(
+                raw_records[0],
+                indent=2,
+                ensure_ascii=False
+            )
+        )
+
+    return raw_records
+
 
 
 
 if __name__ == "__main__":
     fetch_and_cache()
-    stage2()
+    book_records=stage2()
+    raw_records=stage3(
+        book_records
+    )
 
     
     
